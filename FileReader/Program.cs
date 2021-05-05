@@ -9,7 +9,7 @@ namespace FileReader
     {
         static void Main(string[] args) {
             string bestand = "FileReader.files.tekst.txt";
-
+            
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(bestand)) {
                 using (StreamReader reader = new StreamReader(stream)) {
                     string result = reader.ReadToEnd();
