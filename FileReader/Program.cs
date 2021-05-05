@@ -11,8 +11,9 @@ namespace FileReader
         static void Main(string[] args) {
             Dictionary<int, string> bestanden = new Dictionary<int, string>();
             bestanden.Add(0, "Exit");
-            bestanden.Add(1, ".txt");
-            bestanden.Add(2, ".xml");
+            bestanden.Add(1, "tekst.txt");
+            bestanden.Add(2, "tekst.xml");
+            bestanden.Add(3, "tekstencrypted.txt");
 
             int keuzegetal = -1;
             int aantalbestanden = bestanden.Count;
@@ -25,9 +26,9 @@ namespace FileReader
 
                 bool success = Int32.TryParse(keuze, out keuzegetal);
                 if (success && keuzegetal >= 0 && keuzegetal < aantalbestanden) {
-                    string folder = "FileReader.files.tekst";
+                    string folder = "FileReader.files.";
                     string bestand = folder + bestanden[keuzegetal];
-                    Console.WriteLine(ReadFile(bestand));
+                    Console.WriteLine(ReadFile(bestand, keuzegetal));
                 }
                 else {
                     Console.WriteLine("Gelieve een geldig getal op te geven!");
@@ -36,11 +37,15 @@ namespace FileReader
             }
         }
 
-        private static string ReadFile(string bestand) {
+        private static string ReadFile(string bestand, int keuzegetal) {
             try {
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(bestand)) {
                     using (StreamReader reader = new StreamReader(stream)) {
                         string result = reader.ReadToEnd();
+
+                        if(keuzegetal == 3) {
+                            result = Reverse(result);
+                        }
                         return result;
                     }
                 }
@@ -49,6 +54,12 @@ namespace FileReader
                 return ex.Message;
             }
 
+        }
+
+        public static string Reverse(string s) {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
     }
 }

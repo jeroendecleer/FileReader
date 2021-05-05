@@ -8,9 +8,11 @@
   <ItemGroup>
     <None Remove="files\tekst.txt" />
     <None Remove="files\tekst.xml" />
+    <None Remove="files\tekstencrypted.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="files\tekstencrypted.txt" />
     <EmbeddedResource Include="files\tekst.txt" />
     <EmbeddedResource Include="files\tekst.xml" />
   </ItemGroup>
