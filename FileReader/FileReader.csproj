@@ -7,10 +7,12 @@
 
   <ItemGroup>
     <None Remove="files\tekst.txt" />
+    <None Remove="files\tekst.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="files\tekst.txt" />
+    <EmbeddedResource Include="files\tekst.xml" />
   </ItemGroup>
 
 </Project>
