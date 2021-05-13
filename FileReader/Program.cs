@@ -73,7 +73,6 @@ namespace FileReader
 
                     int keuzebestand = Int32.Parse(Console.ReadLine());
                     string bestand = files[keuzebestand];
-               
                     Console.WriteLine(ReadFile(bestand, encrypted));
                 }
                 else {
