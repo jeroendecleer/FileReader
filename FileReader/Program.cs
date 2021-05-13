@@ -39,31 +39,31 @@ namespace FileReader
                     encrypted = false;
                 }
 
-                if (keuzebestandtype == 2) {
-                    Console.WriteLine("Wil je rol based security gebruiken? druk (j)");
-                    string rolbasedinput = Console.ReadLine();
+                Console.WriteLine("Wil je rol based security gebruiken? druk (j)");
+                string rolbasedinput = Console.ReadLine();
 
-                    if (rolbasedinput.ToLower() == "j") {
-                        rolbasedsecurity = true;
-                        Console.WriteLine("Selecteer je rol");
+                if (rolbasedinput.ToLower() == "j") {
+                    rolbasedsecurity = true;
+                    Console.WriteLine("Selecteer je rol");
 
-                        foreach (Rol rol in (Rol[])Enum.GetValues(typeof(Rol))) {
-                            Console.WriteLine("Voor " + rol + " druk (" + (int)rol + ")");
-                        }
-                        keuzerol = Int32.Parse(Console.ReadLine());
+                    foreach (Rol rol in (Rol[])Enum.GetValues(typeof(Rol))) {
+                        Console.WriteLine("Voor " + rol + " druk (" + (int)rol + ")");
                     }
-                    else {
-                        rolbasedsecurity = false;
-                    }
+                    keuzerol = Int32.Parse(Console.ReadLine());
+                }
+                else {
+                    rolbasedsecurity = false;
                 }
 
                 if (success && keuzebestandtype >= 0 && keuzebestandtype < aantalbestanden) {
                     string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
                     string bestandtype = bestanden[keuzebestandtype];
-                    
-                    if(rolbasedsecurity == true) {
+
+                    if (rolbasedsecurity == true) {
                         if (keuzerol != (int)Rol.Admin) {
                             files = files.Where(x => x.Contains(Enum.GetName(typeof(Rol), keuzerol).ToLower()) && x.Contains(bestandtype)).ToArray();
+                        } else if(keuzerol == (int) Rol.Admin){
+                            files = files.Where(x => x.Contains(bestandtype)).ToArray();
                         }
                     }
 
