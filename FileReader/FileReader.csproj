@@ -6,13 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="files\tekst.txt" />
-    <None Remove="files\tekst.xml" />
+    <None Remove="gebruiker\admin.xml" />
+    <None Remove="gebruiker\tekst.txt" />
+    <None Remove="gebruiker\tekst.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="files\tekst.txt" />
-    <EmbeddedResource Include="files\tekst.xml" />
+    <EmbeddedResource Include="admin\tekst.xml" />
+    <EmbeddedResource Include="gebruiker\tekst.txt" />
+    <EmbeddedResource Include="gebruiker\tekst.xml" />
   </ItemGroup>
 
 </Project>

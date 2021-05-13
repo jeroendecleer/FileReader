@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 
@@ -10,21 +11,23 @@ namespace FileReader
     {
         static void Main(string[] args) {
             bool encrypted = false;
-            bool adminrole = false;
+            bool rolbasedsecurity = false;
 
             Dictionary<int, string> bestanden = new Dictionary<int, string>();
             bestanden.Add(0, "Exit");
-            bestanden.Add(1, "tekst.txt");
-            bestanden.Add(2, "tekst.xml");
+            bestanden.Add(1, ".txt");
+            bestanden.Add(2, ".xml");
 
-            int keuzegetal = -1;
+            int keuzebestandtype = -1;
+            int keuzerol = -1;
+
             int aantalbestanden = bestanden.Count;
-            while (keuzegetal != 0) {
+            while (keuzebestandtype != 0) {
                 foreach (KeyValuePair<int, string> entry in bestanden) {
                     Console.WriteLine("Voor " + entry.Value + " druk (" + entry.Key + ")");
                 }
-
                 string keuze = Console.ReadLine();
+                bool success = Int32.TryParse(keuze, out keuzebestandtype);
 
                 Console.WriteLine("Wil je het bestand encrypteren? druk (j)");
                 string encryptedinput = Console.ReadLine();
@@ -36,25 +39,56 @@ namespace FileReader
                     encrypted = false;
                 }
 
-                bool success = Int32.TryParse(keuze, out keuzegetal);
-                if (success && keuzegetal >= 0 && keuzegetal < aantalbestanden) {
-                    string folder = "FileReader.files.";
-                    string bestand = folder + bestanden[keuzegetal];
-                    Console.WriteLine(ReadFile(bestand, keuzegetal, encrypted));
+                if (keuzebestandtype == 2) {
+                    Console.WriteLine("Wil je rol based security gebruiken? druk (j)");
+                    string rolbasedinput = Console.ReadLine();
+
+                    if (rolbasedinput.ToLower() == "j") {
+                        rolbasedsecurity = true;
+                        Console.WriteLine("Selecteer je rol");
+
+                        foreach (Rol rol in (Rol[])Enum.GetValues(typeof(Rol))) {
+                            Console.WriteLine("Voor " + rol + " druk (" + (int)rol + ")");
+                        }
+                        keuzerol = Int32.Parse(Console.ReadLine());
+                    }
+                    else {
+                        rolbasedsecurity = false;
+                    }
+                }
+
+                if (success && keuzebestandtype >= 0 && keuzebestandtype < aantalbestanden) {
+                    string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                    string bestandtype = bestanden[keuzebestandtype];
+                    
+                    if(rolbasedsecurity == true) {
+                        if (keuzerol != (int)Rol.Admin) {
+                            files = files.Where(x => x.Contains(Enum.GetName(typeof(Rol), keuzerol).ToLower()) && x.Contains(bestandtype)).ToArray();
+                        }
+                    }
+
+                    for (int i = 0; i < files.Length; i++) {
+                        Console.WriteLine("Voor inlezen " + files[i] + " druk (" + i + ")");
+                    }
+
+                    int keuzebestand = Int32.Parse(Console.ReadLine());
+                    string bestand = files[keuzebestand];
+               
+                    Console.WriteLine(ReadFile(bestand, encrypted));
                 }
                 else {
                     Console.WriteLine("Gelieve een geldig getal op te geven!");
-                    keuzegetal = -1;
+                    keuzebestandtype = -1;
                 }
             }
         }
-        private static string ReadFile(string bestand, int keuzegetal, bool encrypted) {
+        private static string ReadFile(string bestand, bool encrypted) {
             try {
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(bestand)) {
                     using (StreamReader reader = new StreamReader(stream)) {
                         string result = reader.ReadToEnd();
 
-                        if(encrypted == true) {
+                        if (encrypted == true) {
                             result = Reverse(result);
                         }
                         return result;
@@ -64,7 +98,6 @@ namespace FileReader
             catch (Exception ex) {
                 return ex.Message;
             }
-
         }
 
         public static string Reverse(string s) {
@@ -73,4 +106,11 @@ namespace FileReader
             return new string(charArray);
         }
     }
+
+    public enum Rol
+    {
+        Admin = 1,
+        Gebruiker = 2,
+    }
+
 }
