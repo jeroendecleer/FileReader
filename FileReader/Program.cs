@@ -17,6 +17,7 @@ namespace FileReader
             bestanden.Add(0, "Exit");
             bestanden.Add(1, ".txt");
             bestanden.Add(2, ".xml");
+            bestanden.Add(3, ".json");
 
             int keuzebestandtype = -1;
             int keuzerol = -1;
@@ -58,12 +59,10 @@ namespace FileReader
                 if (success && keuzebestandtype >= 0 && keuzebestandtype < aantalbestanden) {
                     string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
                     string bestandtype = bestanden[keuzebestandtype];
-
+                    files = files.Where(x => x.Contains(bestandtype)).ToArray();
                     if (rolbasedsecurity == true) {
                         if (keuzerol != (int)Rol.Admin) {
-                            files = files.Where(x => x.Contains(Enum.GetName(typeof(Rol), keuzerol).ToLower()) && x.Contains(bestandtype)).ToArray();
-                        } else if(keuzerol == (int) Rol.Admin){
-                            files = files.Where(x => x.Contains(bestandtype)).ToArray();
+                            files = files.Where(x => x.Contains(Enum.GetName(typeof(Rol), keuzerol).ToLower())).ToArray();
                         }
                     }
 
