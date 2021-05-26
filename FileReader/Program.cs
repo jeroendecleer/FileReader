@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileReader.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,10 +11,21 @@ namespace FileReader
     class Program
     {
         static void Main(string[] args) {
-            bool encrypted = false;
-            bool rolbasedsecurity = false;
+            List<Bestand> bestanden = new List<Bestand>();
+            bestanden.Add(new Tekst("gebruiker.tekst"));
+            bestanden.Add(new Xml("gebruiker.tekst"));
+            var types = typeof(Bestand).Assembly.GetTypes().Where(t => t.BaseType == typeof(Bestand)).ToList();
 
-            Dictionary<int, string> bestanden = new Dictionary<int, string>();
+            Console.WriteLine("Voor Exit druk (0)");
+            for (int i = 0; i < types.Count(); i++) {
+                Console.WriteLine("Voor " + types[i].Name + " druk (" + (i + 1) + ")");
+            }
+
+            int keuzebestandtype = -1;
+            while (keuzebestandtype != 0) {
+            }
+
+            /*Dictionary<int, string> bestanden = new Dictionary<int, string>();
             bestanden.Add(0, "Exit");
             bestanden.Add(1, ".txt");
             bestanden.Add(2, ".xml");
@@ -78,7 +90,7 @@ namespace FileReader
                     Console.WriteLine("Gelieve een geldig getal op te geven!");
                     keuzebestandtype = -1;
                 }
-            }
+            }*/
         }
         private static string ReadFile(string bestand, bool encrypted) {
             try {
