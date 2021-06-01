@@ -6,21 +6,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="admin\tekst.json" />
-    <None Remove="admin\tekst.txt" />
-    <None Remove="gebruiker\admin.xml" />
-    <None Remove="gebruiker\tekst.json" />
-    <None Remove="gebruiker\tekst.txt" />
-    <None Remove="gebruiker\tekst.xml" />
+    <None Remove="Admin\tekst.json" />
+    <None Remove="Admin\tekst.txt" />
+    <None Remove="Gebruiker\admin.xml" />
+    <None Remove="Gebruiker\tekst.json" />
+    <None Remove="Gebruiker\tekst.txt" />
+    <None Remove="Gebruiker\tekst.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="admin\tekst.json" />
-    <EmbeddedResource Include="admin\tekst.txt" />
-    <EmbeddedResource Include="admin\tekst.xml" />
-    <EmbeddedResource Include="gebruiker\tekst.json" />
-    <EmbeddedResource Include="gebruiker\tekst.txt" />
-    <EmbeddedResource Include="gebruiker\tekst.xml" />
+    <EmbeddedResource Include="Admin\tekst.json" />
+    <EmbeddedResource Include="Admin\tekst.txt" />
+    <EmbeddedResource Include="Admin\tekst.xml" />
+    <EmbeddedResource Include="Gebruiker\tekst.json" />
+    <EmbeddedResource Include="Gebruiker\tekst.txt" />
+    <EmbeddedResource Include="Gebruiker\tekst.xml" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using FileReader.Models;
+using FileReader.Models.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,94 +12,116 @@ namespace FileReader
     class Program
     {
         static void Main(string[] args) {
-            List<Bestand> bestanden = new List<Bestand>();
-            bestanden.Add(new Tekst("gebruiker.tekst"));
-            bestanden.Add(new Xml("gebruiker.tekst"));
-            var types = typeof(Bestand).Assembly.GetTypes().Where(t => t.BaseType == typeof(Bestand)).ToList();
+            var input = new Input();
 
-            Console.WriteLine("Voor Exit druk (0)");
-            for (int i = 0; i < types.Count(); i++) {
-                Console.WriteLine("Voor " + types[i].Name + " druk (" + (i + 1) + ")");
-            }
+            List<BestandTypes> bestandstypes = new List<BestandTypes>();
+            bestandstypes.Add(new Tekst());
+            bestandstypes.Add(new Xml());
+            bestandstypes.Add(new Json());
 
+            List<Rol> rollen = new List<Rol>();
+            rollen.Add(new Admin());
+            rollen.Add(new Gebruiker());
+
+            int keuzefile = -1;
             int keuzebestandtype = -1;
             while (keuzebestandtype != 0) {
-            }
 
-            /*Dictionary<int, string> bestanden = new Dictionary<int, string>();
-            bestanden.Add(0, "Exit");
-            bestanden.Add(1, ".txt");
-            bestanden.Add(2, ".xml");
-            bestanden.Add(3, ".json");
+                //keuzebestandtype = AskBestandType(bestandstypes);
+                Console.WriteLine("Voor Exit druk (0");
 
-            int keuzebestandtype = -1;
-            int keuzerol = -1;
-
-            int aantalbestanden = bestanden.Count;
-            while (keuzebestandtype != 0) {
-                foreach (KeyValuePair<int, string> entry in bestanden) {
-                    Console.WriteLine("Voor " + entry.Value + " druk (" + entry.Key + ")");
+                for (int i = 0; i < bestandstypes.Count(); i++) {
+                    Console.WriteLine("Voor " + bestandstypes[i].Naam + " druk (" + (i + 1) + ")");
                 }
+
                 string keuze = Console.ReadLine();
-                bool success = Int32.TryParse(keuze, out keuzebestandtype);
+                var success = Int32.TryParse(keuze, out keuzebestandtype);
+
+                input.BestandType = bestandstypes[keuzebestandtype - 1];
 
                 Console.WriteLine("Wil je het bestand encrypteren? druk (j)");
                 string encryptedinput = Console.ReadLine();
 
                 if (encryptedinput.ToLower() == "j") {
-                    encrypted = true;
+                    input.Encrypted = true;
                 }
                 else {
-                    encrypted = false;
+                    input.Encrypted = false;
                 }
 
                 Console.WriteLine("Wil je rol based security gebruiken? druk (j)");
                 string rolbasedinput = Console.ReadLine();
 
                 if (rolbasedinput.ToLower() == "j") {
-                    rolbasedsecurity = true;
+                    input.RolbasedSecurity = true;
                     Console.WriteLine("Selecteer je rol");
 
-                    foreach (Rol rol in (Rol[])Enum.GetValues(typeof(Rol))) {
-                        Console.WriteLine("Voor " + rol + " druk (" + (int)rol + ")");
+                    for (int i = 0; i < rollen.Count(); i++) {
+                        Console.WriteLine("Voor " + rollen[i].Naam + " druk (" + i + ")");
                     }
-                    keuzerol = Int32.Parse(Console.ReadLine());
+                    int keuzerol = Int32.Parse(Console.ReadLine());
+                    input.Rol = rollen[keuzerol];
                 }
                 else {
-                    rolbasedsecurity = false;
+                    input.RolbasedSecurity = false;
                 }
 
-                if (success && keuzebestandtype >= 0 && keuzebestandtype < aantalbestanden) {
+                if (success == true && keuzebestandtype > 0 && keuzebestandtype <= bestandstypes.Count()) {
                     string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-                    string bestandtype = bestanden[keuzebestandtype];
-                    files = files.Where(x => x.Contains(bestandtype)).ToArray();
-                    if (rolbasedsecurity == true) {
-                        if (keuzerol != (int)Rol.Admin) {
-                            files = files.Where(x => x.Contains(Enum.GetName(typeof(Rol), keuzerol).ToLower())).ToArray();
-                        }
-                    }
-
+                    files = input.BestandType.GetFiles(files);
+                    //TODO als er geen rol geselecteerd is is er nog een error
+                    files = input.Rol.GetFiles(files);
                     for (int i = 0; i < files.Length; i++) {
                         Console.WriteLine("Voor inlezen " + files[i] + " druk (" + i + ")");
                     }
 
-                    int keuzebestand = Int32.Parse(Console.ReadLine());
-                    string bestand = files[keuzebestand];
-                    Console.WriteLine(ReadFile(bestand, encrypted));
+                    string filekeuze = Console.ReadLine();
+                    Int32.TryParse(filekeuze, out keuzefile);
+                    input.GekozenBestand = files[keuzefile];
+                    Console.WriteLine(ReadFile(input));
                 }
                 else {
                     Console.WriteLine("Gelieve een geldig getal op te geven!");
-                    keuzebestandtype = -1;
+                    if (keuzebestandtype != 0) {
+                        keuzebestandtype = -1;
+                    }
                 }
-            }*/
+            }
         }
-        private static string ReadFile(string bestand, bool encrypted) {
+
+        public static int AskBestandType(List<BestandTypes> bestandstypes) {
+            int keuzebestandtype = -1;
+            bool success = false;
+
+            while(success == false) {
+                Console.WriteLine("Voor Exit druk (0");
+
+                for (int i = 0; i < bestandstypes.Count(); i++) {
+                    Console.WriteLine("Voor " + bestandstypes[i].Naam + " druk (" + (i + 1) + ")");
+                }
+                //Console.WriteLine("Voor Exit druk " + (i + 1));
+
+                string keuze = Console.ReadLine();
+                //TODO when parse fails is automatically sets out to zero
+                success = Int32.TryParse(keuze, out keuzebestandtype);
+
+                if (keuzebestandtype == 0) {
+                    Environment.Exit(0);
+                }
+            }
+
+            
+
+            return keuzebestandtype;
+        }
+
+        private static string ReadFile(Input input) {
             try {
-                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(bestand)) {
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(input.GekozenBestand)) {
                     using (StreamReader reader = new StreamReader(stream)) {
                         string result = reader.ReadToEnd();
 
-                        if (encrypted == true) {
+                        if (input.Encrypted == true) {
                             result = Reverse(result);
                         }
                         return result;
@@ -116,11 +139,4 @@ namespace FileReader
             return new string(charArray);
         }
     }
-
-    public enum Rol
-    {
-        Admin = 1,
-        Gebruiker = 2,
-    }
-
 }
