@@ -27,92 +27,96 @@ namespace FileReader
             int keuzebestandtype = -1;
             while (keuzebestandtype != 0) {
 
-                //keuzebestandtype = AskBestandType(bestandstypes);
-                Console.WriteLine("Voor Exit druk (0");
+                keuzebestandtype = AskBestandType(bestandstypes);
+                input.BestandType = bestandstypes[keuzebestandtype];
+                input.Encrypted = AskJaNee("Wil je het bestand encrypteren?");
+                input.RolbasedSecurity = AskJaNee("Wil je rol based security gebruiken ?");
 
-                for (int i = 0; i < bestandstypes.Count(); i++) {
-                    Console.WriteLine("Voor " + bestandstypes[i].Naam + " druk (" + (i + 1) + ")");
-                }
-
-                string keuze = Console.ReadLine();
-                var success = Int32.TryParse(keuze, out keuzebestandtype);
-
-                input.BestandType = bestandstypes[keuzebestandtype - 1];
-
-                Console.WriteLine("Wil je het bestand encrypteren? druk (j)");
-                string encryptedinput = Console.ReadLine();
-
-                if (encryptedinput.ToLower() == "j") {
-                    input.Encrypted = true;
-                }
-                else {
-                    input.Encrypted = false;
-                }
-
-                Console.WriteLine("Wil je rol based security gebruiken? druk (j)");
-                string rolbasedinput = Console.ReadLine();
-
-                if (rolbasedinput.ToLower() == "j") {
-                    input.RolbasedSecurity = true;
-                    Console.WriteLine("Selecteer je rol");
-
-                    for (int i = 0; i < rollen.Count(); i++) {
-                        Console.WriteLine("Voor " + rollen[i].Naam + " druk (" + i + ")");
-                    }
-                    int keuzerol = Int32.Parse(Console.ReadLine());
-                    input.Rol = rollen[keuzerol];
+                if (input.RolbasedSecurity == true) {
+                    input.Rol = AskRol(rollen);
                 }
                 else {
                     input.RolbasedSecurity = false;
+                    input.Rol = null;
                 }
 
-                if (success == true && keuzebestandtype > 0 && keuzebestandtype <= bestandstypes.Count()) {
-                    string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-                    files = input.BestandType.GetFiles(files);
-                    //TODO als er geen rol geselecteerd is is er nog een error
+                string[] files = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                files = input.BestandType.GetFiles(files);
+                if (input.Rol != null) {
                     files = input.Rol.GetFiles(files);
-                    for (int i = 0; i < files.Length; i++) {
-                        Console.WriteLine("Voor inlezen " + files[i] + " druk (" + i + ")");
-                    }
+                }
+                for (int i = 0; i < files.Length; i++) {
+                    Console.WriteLine("Voor inlezen " + files[i] + " druk (" + i + ")");
+                }
 
-                    string filekeuze = Console.ReadLine();
-                    Int32.TryParse(filekeuze, out keuzefile);
-                    input.GekozenBestand = files[keuzefile];
-                    Console.WriteLine(ReadFile(input));
-                }
-                else {
-                    Console.WriteLine("Gelieve een geldig getal op te geven!");
-                    if (keuzebestandtype != 0) {
-                        keuzebestandtype = -1;
-                    }
-                }
+                string filekeuze = Console.ReadLine();
+                Int32.TryParse(filekeuze, out keuzefile);
+                input.GekozenBestand = files[keuzefile];
+                Console.WriteLine(ReadFile(input));
+
             }
         }
 
-        public static int AskBestandType(List<BestandTypes> bestandstypes) {
+        private static int AskBestandType(List<BestandTypes> bestandstypes) {
             int keuzebestandtype = -1;
             bool success = false;
 
-            while(success == false) {
-                Console.WriteLine("Voor Exit druk (0");
-
+            while (success == false) {
                 for (int i = 0; i < bestandstypes.Count(); i++) {
-                    Console.WriteLine("Voor " + bestandstypes[i].Naam + " druk (" + (i + 1) + ")");
+                    Console.WriteLine("Voor " + bestandstypes[i].Naam + " druk (" + (i) + ")");
                 }
-                //Console.WriteLine("Voor Exit druk " + (i + 1));
+                Console.WriteLine("Voor Exit druk (" + bestandstypes.Count() + ")");
 
                 string keuze = Console.ReadLine();
-                //TODO when parse fails is automatically sets out to zero
                 success = Int32.TryParse(keuze, out keuzebestandtype);
 
-                if (keuzebestandtype == 0) {
+                if (success == true && (keuzebestandtype < 0 || keuzebestandtype > bestandstypes.Count())) {
+                    success = false;
+                }
+
+                if (keuzebestandtype == bestandstypes.Count()) {
                     Environment.Exit(0);
                 }
             }
 
-            
-
             return keuzebestandtype;
+        }
+        private static Rol AskRol(List<Rol> rollen) {
+            bool success = false;
+            int keuzerolgetal = -1;
+            while (success == false) {
+                Console.WriteLine("Selecteer je rol");
+
+                for (int i = 0; i < rollen.Count(); i++) {
+                    Console.WriteLine("Voor " + rollen[i].Naam + " druk (" + i + ")");
+                }
+                string keuzerol = Console.ReadLine();
+                success = Int32.TryParse(keuzerol, out keuzerolgetal);
+
+                if (success == true && (keuzerolgetal < 0 || keuzerolgetal >= rollen.Count())) {
+                    success = false;
+                }
+                else if (success == true && keuzerolgetal >= 0 && keuzerolgetal < rollen.Count()) {
+                    return rollen[keuzerolgetal];
+                }
+            }
+            return null;
+        }
+
+        private static bool AskJaNee(string vraag) {
+            string input = "";
+            while (input != "j") {
+                Console.WriteLine(vraag + " druk (j) of (n)");
+                input = Console.ReadLine();
+
+                if (input.ToLower() == "j") {
+                    return true;
+                }
+                else if (input.ToLower() == "n") {
+                    return false;
+                }
+            }
+            return false;
         }
 
         private static string ReadFile(Input input) {
